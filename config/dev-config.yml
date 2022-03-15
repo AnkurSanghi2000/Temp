@@ -1,0 +1,15 @@
+server:
+  type: simple
+  applicationContextPath: /datafaucet
+  adminContextPath: /datafaucet/admin
+  gzip:
+    bufferSize: 8KiB
+  requestLog:
+    appenders:
+      - type: console
+  connector:
+    type: http
+    port: 58080
+#    keyStorePath: config/exchange.jks
+#    keyStorePassword: node40
+#    validateCerts: false

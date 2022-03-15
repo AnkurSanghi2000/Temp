@@ -1,0 +1,17 @@
+.gradle
+.DS_Store
+out
+build
+docker.env.list
+*.ipr
+*.iws
+*.iml
+.idea
+.java-version
+.dockerignore
+.gradletasknamecache
+swagger.json
+.classpath
+.project
+.settings/
+bin/

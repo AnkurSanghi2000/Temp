@@ -1,0 +1,89 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:5.0.0"
+    }
+}
+
+plugins {
+    id "application"
+    id "idea"
+    id "checkstyle"
+    id "com.github.johnrengelman.shadow" version "5.0.0"
+}
+
+sourceCompatibility = "12"
+targetCompatibility = "12"
+
+checkstyle {
+    toolVersion "8.10"
+    maxWarnings = 0
+}
+
+repositories {
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+    mavenCentral()
+}
+
+dependencies {
+
+    def dropwizardVersion = "2.0.23"
+
+    compile group: "io.dropwizard", name: "dropwizard-core", version: "${dropwizardVersion}"
+    compile group: "io.dropwizard", name: "dropwizard-jdbi3", version: "${dropwizardVersion}"
+    compile group: "io.dropwizard", name: "dropwizard-migrations", version: "${dropwizardVersion}"
+    compile group: "io.dropwizard", name: "dropwizard-forms", version: "${dropwizardVersion}"
+    compile group: "io.dropwizard", name: "dropwizard-validation", version: "${dropwizardVersion}"
+    compile group: "io.dropwizard", name: "dropwizard-client", version: "${dropwizardVersion}"
+    compile group: "io.dropwizard", name: "dropwizard-http2", version: "${dropwizardVersion}"
+    compile group: "io.dropwizard", name: "dropwizard-metrics-graphite", version: "${dropwizardVersion}"
+    compile group: "io.dropwizard.metrics", name: "metrics-graphite", version: "4.1.2"
+    compile group: "io.dropwizard.metrics", name: "metrics-core", version: "4.1.2"
+
+    compile group: "com.google.guava", name: "guava", version: "28.0-jre"
+    compile group: "com.google.inject", name: "guice", version: "4.2.2"
+    compile group: "com.google.http-client", name: "google-http-client", version: "1.22.0"
+    compile group: "com.google.http-client", name: "google-http-client-jackson2", version: "1.22.0"
+}
+
+mainClassName = "com.node40.DataFaucetApplication"
+
+assemble.dependsOn "shadowJar"
+
+artifacts {
+    archives shadowJar
+}
+
+shadowJar {
+    baseName = "datafaucet"
+    classifier = "shadow"
+    exclude "META-INF/*.SF"
+    exclude "META-INF/*.DSA"
+    exclude "META-INF/*.RSA"
+
+    mergeServiceFiles()
+}
+
+runShadow {
+    args = ["server", "config/dev-config.yml"]
+}
+
+task runDebug(type: JavaExec, dependsOn: build) {
+    main = "-jar"
+    jvmArgs = [
+            "-Xdebug",
+            "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+    ]
+    args = [
+            "build/libs/datafaucet-shadow.jar",
+            "server",
+            "config/dev-config.yml"
+    ]
+}
