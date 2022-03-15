@@ -46,7 +46,7 @@ dependencies {
     compile group: "io.dropwizard", name: "dropwizard-metrics-graphite", version: "${dropwizardVersion}"
     compile group: "io.dropwizard.metrics", name: "metrics-graphite", version: "4.1.2"
     compile group: "io.dropwizard.metrics", name: "metrics-core", version: "4.1.2"
-
+    compile group: "com.smoketurner", name: "dropwizard-swagger", version: "2.0.12-1"
     compile group: "com.google.guava", name: "guava", version: "28.0-jre"
     compile group: "com.google.inject", name: "guice", version: "4.2.2"
     compile group: "com.google.http-client", name: "google-http-client", version: "1.22.0"
