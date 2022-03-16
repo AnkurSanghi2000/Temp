@@ -1,5 +1,6 @@
 package com.node40;
 
+import com.node40.resources.AccountResource;
 import com.node40.resources.PingResource;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -33,9 +34,9 @@ public class DataFaucetApplication extends Application<DataFaucetConfiguration> 
 
         final PingResource pingResource = new PingResource();
         environment.jersey().register(pingResource);
-//
-//        final AccountResource accountResource = new AccountResource();
-//        environment.jersey().register(accountResource);
+
+        final AccountResource accountResource = new AccountResource();
+        environment.jersey().register(accountResource);
 
 
     }
