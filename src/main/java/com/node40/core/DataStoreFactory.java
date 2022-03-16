@@ -1,24 +1,22 @@
 package com.node40.core;
 
-import com.node40.client.FTXExchangeClient;
+import com.google.inject.Inject;
+import com.node40.inject.FTXExchange;
 
 public class DataStoreFactory {
 
-    private String apiKey;
-    private String secretKey;
-    private String baseURI;
+    private DataStoreClient ftxExchangeClient;
 
-    public DataStoreFactory(String apiKey, String secretKey, String baseURI) {
-        this.apiKey = apiKey;
-        this.secretKey = secretKey;
-        this.baseURI = baseURI;
+    @Inject
+    public DataStoreFactory(@FTXExchange DataStoreClient ftxExchangeClient) {
+        this.ftxExchangeClient = ftxExchangeClient;
     }
 
-    public DataStoreClient nameLookup(DataStoreList storeName) throws IllegalArgumentException {
+    public DataStoreClient getClient(DataStoreList storeName) throws IllegalArgumentException {
 
         switch (storeName) {
             case FTXExchange:
-                return new FTXExchangeClient(apiKey, secretKey, baseURI);
+                return ftxExchangeClient;
             default:
                 throw new IllegalArgumentException("Exchange Not Supported");
         }

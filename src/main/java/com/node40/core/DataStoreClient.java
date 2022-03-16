@@ -4,5 +4,5 @@ import com.node40.api.AccountResponse;
 
 
 public interface DataStoreClient {
-    AccountResponse getAccountList();
+    AccountResponse getAccountList(String apiKey, String secretKey);
 }

@@ -32,7 +32,6 @@ public class DataFaucetModule extends AbstractModule {
         //bind(String.class).annotatedWith(Names.named("environment")).toInstance(config.getEnvironment());
         bind(HttpTransport.class).to(NetHttpTransport.class);
         bind(JsonFactory.class).to(JacksonFactory.class);
-        bind(DataStoreFactory.class).to(DataStoreFactory.class);
         bind(DataStoreClient.class).annotatedWith(FTXExchange.class).to(FTXExchangeClient.class);
     }
 

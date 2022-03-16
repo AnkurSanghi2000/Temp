@@ -1,5 +1,8 @@
 package com.node40;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.node40.inject.DataFaucetModule;
 import com.node40.resources.AccountResource;
 import com.node40.resources.PingResource;
 import io.dropwizard.Application;
@@ -32,13 +35,12 @@ public class DataFaucetApplication extends Application<DataFaucetConfiguration> 
     public void run(final DataFaucetConfiguration configuration,
                     final Environment environment) {
 
+        Injector injector = Guice.createInjector(new DataFaucetModule(environment, configuration));
+
         final PingResource pingResource = new PingResource();
         environment.jersey().register(pingResource);
 
-        final AccountResource accountResource = new AccountResource();
-        environment.jersey().register(accountResource);
-
-
+        environment.jersey().register(injector.getInstance(AccountResource.class));
     }
 
 }

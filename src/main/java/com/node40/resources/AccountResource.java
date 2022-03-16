@@ -1,6 +1,7 @@
 package com.node40.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.google.inject.Inject;
 import com.node40.api.AccountRequest;
 import com.node40.api.AccountResponse;
 import com.node40.core.DataStoreClient;
@@ -23,6 +24,12 @@ public class AccountResource {
 
     private static final String CACHE_CONTROL = "Cache-Control";
     private static final String NO_CACHE = "must-revalidate,no-cache,no-store";
+    DataStoreFactory dataStoreFactory;
+
+    @Inject
+    public AccountResource(DataStoreFactory dataStoreFactory) {
+        this.dataStoreFactory = dataStoreFactory;
+    }
 
     @GET
     @Timed
@@ -30,9 +37,9 @@ public class AccountResource {
             @ApiResponse(code = 200, message = "pong", response = String.class)
     })
     public Response getAccounts(@Valid AccountRequest accountRequest) {
-        DataStoreFactory dataStoreFactory = new DataStoreFactory(accountRequest.getApiKey(), accountRequest.getSecretKey(), "https://ftx.com/api");
-        DataStoreClient dataStoreClient = dataStoreFactory.nameLookup(accountRequest.getDataStoreName());
-        AccountResponse accountResponse = dataStoreClient.getAccountList();
+        //DataStoreFactory dataStoreFactory = new DataStoreFactory(accountRequest.getApiKey(), accountRequest.getSecretKey(), "https://ftx.com/");
+        DataStoreClient dataStoreClient = dataStoreFactory.getClient(accountRequest.getDataStoreName());
+        AccountResponse accountResponse = dataStoreClient.getAccountList(accountRequest.getApiKey(), accountRequest.getSecretKey());
         return Response.ok(accountResponse).build();
     }
 }

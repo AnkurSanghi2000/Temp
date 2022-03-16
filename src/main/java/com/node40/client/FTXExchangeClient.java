@@ -6,6 +6,7 @@ import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
+import com.google.inject.Inject;
 import com.node40.api.AccountResponse;
 import com.node40.core.DataStoreClient;
 import org.apache.commons.codec.binary.Base64;
@@ -26,13 +27,15 @@ import java.util.ArrayList;
 
 public class FTXExchangeClient implements DataStoreClient {
     @Override
-    public AccountResponse getAccountList() {
+    public AccountResponse getAccountList(String apiKey, String secretKey) {
+        this.apikey = apikey;
+        this.secretKey = secretKey;
+
         this.getAccountListFromExchange();
         //Map/Translate FTX Account response to Node40 account response
         AccountResponse accountResponse = new AccountResponse("test");
         return accountResponse;
     }
-    // This class is designed to interact with the FTX exchange and fetch data
 
     /* This is the account response definition from FTX */
     private class Account {
@@ -91,12 +94,14 @@ public class FTXExchangeClient implements DataStoreClient {
     private static final Logger log = LoggerFactory.getLogger(FTXExchangeClient.class);
     private static final String SHA256 = "SHA-256";
     private static final String HMAC_SHA512 = "HmacSHA512";
+    @Inject
     private static HttpRequestFactory httpRequestFactory;
 
-    public FTXExchangeClient(String apikey, String secretKey, String baseURL) {
-        this.apikey = apikey;
-        this.secretKey = secretKey;
-        this.baseURL = baseURL;
+    @Inject
+    public FTXExchangeClient(String baseURL, HttpRequestFactory httpRequestFactory) {
+        //this.baseURL = baseURL;
+        this.baseURL = "https://ftx.com/";
+        this.httpRequestFactory = httpRequestFactory;
     }
 
     public static String generateSignature(String secretKey, String uriPath, String body, long timeMillis) throws IllegalArgumentException {
@@ -192,12 +197,12 @@ public class FTXExchangeClient implements DataStoreClient {
         // POST data
 
         try {
-            String resource_url = String.format("%s%s", baseURL, "/account");
+            String resource_url = String.format("%s%s", baseURL, "api/account");
             GenericUrl url = new GenericUrl(resource_url);
             long requestTimeStamp = DateTime.now().getMillis();
             String method = HttpMethods.GET;
-            String endpoint = "/account";
-            String sigPayLoad = String.valueOf(requestTimeStamp).concat(method).concat(endpoint);
+            String endpoint = "/api/account";
+            String sigPayLoad = String.valueOf(requestTimeStamp).concat(method.toUpperCase()).concat(endpoint);
             String signature = encode(secretKey, sigPayLoad);
             //HttpResponse response = httpRequestFactory.buildPostRequest(url, new UrlEncodedContent(params))
             HttpResponse response = httpRequestFactory.buildGetRequest(url)
@@ -215,8 +220,23 @@ public class FTXExchangeClient implements DataStoreClient {
     }
 
     private ArrayList<Account> getAccountListFromExchange() {
-        generateSign();
+        //generateSign();
+        getmarket();
         return accountList;
+    }
+
+    private void getmarket(){
+        try {
+            String resource_url = String.format("%s%s", baseURL, "api/markets");
+            GenericUrl url = new GenericUrl(resource_url);
+            HttpResponse response = httpRequestFactory.buildGetRequest(url)
+                    .setConnectTimeout(30000)
+                    .setReadTimeout(120 * 1000)
+                    .execute();
+            log.info(response.toString());
+        } catch (IOException e) {
+            log.debug(e.getMessage());
+        }
     }
 
     private ArrayList<Transaction> getTransactionListFromExchange() {
