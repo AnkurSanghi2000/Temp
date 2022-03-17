@@ -220,8 +220,8 @@ public class FTXExchangeClient implements DataStoreClient {
     }
 
     private ArrayList<Account> getAccountListFromExchange() {
-        //generateSign();
-        getmarket();
+        generateSign();
+        //getmarket();
         return accountList;
     }
 
