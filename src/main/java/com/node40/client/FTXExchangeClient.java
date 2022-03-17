@@ -136,6 +136,13 @@ public class FTXExchangeClient implements DataStoreClient {
         return Base64.encodeBase64String(data);
     }
 
+    private static byte[] HexDecode(String input) {
+        return HexDecode(input);
+    }
+    private static String HexEncode(byte[] data) {
+        return HexEncode(data);
+    }
+
     private static byte[] concatArrays(byte[] a, byte[] b) {
         if (a == null || b == null) {
             throw new IllegalArgumentException("Input cannot be null");
@@ -180,9 +187,9 @@ public class FTXExchangeClient implements DataStoreClient {
     public static String encode(String apiSecretKey, String data) throws IllegalArgumentException {
         try {
             Mac sha256HMAC = Mac.getInstance("HmacSHA256");
-            SecretKeySpec localSecretKey = new SecretKeySpec(apiSecretKey.getBytes("UTF-8"), "HmacSHA256");
+            SecretKeySpec localSecretKey = new SecretKeySpec(apiSecretKey.getBytes("UTF-16"), "HmacSHA256");
             sha256HMAC.init(localSecretKey);
-            return Hex.encodeHexString(sha256HMAC.doFinal(data.getBytes("UTF-8")));
+            return Hex.encodeHexString(sha256HMAC.doFinal(data.getBytes("UTF-16")));
         } catch (NoSuchAlgorithmException | InvalidKeyException | UnsupportedEncodingException e) {
             throw new IllegalArgumentException(e);
         }
@@ -203,13 +210,15 @@ public class FTXExchangeClient implements DataStoreClient {
             String method = HttpMethods.GET;
             String endpoint = "/api/account";
             String sigPayLoad = String.valueOf(requestTimeStamp).concat(method.toUpperCase()).concat(endpoint);
-            String signature = encode(secretKey, sigPayLoad);
+            //String signature = encode(secretKey, sigPayLoad);
+            //byte[] s = stringToBytes(signature.toLowerCase());
+            byte[] s = hmacSha512(HexDecode(this.secretKey),HexDecode(sigPayLoad));
             //HttpResponse response = httpRequestFactory.buildPostRequest(url, new UrlEncodedContent(params))
             HttpResponse response = httpRequestFactory.buildGetRequest(url)
                     .setHeaders(
                             new HttpHeaders()
                                     .set("FTX-KEY", this.apikey)
-                                    .set("FTX-SIGN", signature)
+                                    .set("FTX-SIGN", s)
                                     .set("FTX-TS", String.valueOf(requestTimeStamp))
                     ).setConnectTimeout(30000)
                     .setReadTimeout(120 * 1000)
